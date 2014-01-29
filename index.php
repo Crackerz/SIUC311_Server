@@ -1,5 +1,10 @@
 <?php 
 
+//Import our own dependencies
+include_once './database.php';
+include_once './ticket.php';
+include_once './httpResponse.php';
+
 //Setup our REST framework library
 //github.com/jmathai/epiphany
 include_once './epiphany/src/Epi.php';
@@ -13,27 +18,47 @@ getRoute()->load('api.ini');
 //Execute our API handlers for the current request
 getRoute()->run();
 
-class Ticket {
+//The ticketapi class represents our API functionality
+class TicketAPI {
 	public static function addNew() {
-		echo "adding ticket!";
+		$ticket = Ticket::ticketFromJson(json_decode(file_get_contents('php://input'))); 
+		$sql = new SQLServer();
+		if(!$sql->connect()) 
+				internalServerError($sql->getError());
+		$success = $sql->insertTicket($ticket);
+		if($success)
+			echo '{id:' . $sql->connection->insert_id . '}';
+		else {
+			internalServerError($sql->getError());
+		}
 	}
 
 	public static function fetchExisting() {
-		echo "getting ticket!";
-
+		$sql = new SQLServer();
+		if(!$sql->connect()) 
+				internalServerError($sql->getError());
+		echo json_encode($sql->getTicket(getID()));
 	}
 
 	public static function deleteExisting() {
-		echo "deleting ticket!";	
+		$sql = new SQLServer();
+		if(!$sql->connect()) 
+				internalServerError($sql->getError());
+		if(!$sql->deleteTicket(getId())) {
+			resourceNotFound();
+		}
 	}
 
 	public static function updateExisting() {
-		echo "updating ticket!";
+		$ticket = Ticket::ticketFromJson(json_decode(file_get_contents('php://input'))); 
+		$sql = new SQLServer();
+		if(!$sql->connect()) 
+			internalServerError($sql->getError());
+		if(!$sql->updateTicket(getID(),$ticket))
+			resourceNotFound();
 	}
 }
 
-function notImplemented() {
-	http_response_code(404);
-	echo "This is a server. It should not be being viewed by a web browser. The requested REST API call you issued is not implemented here. Please re-evaluate the life decisions that lead you to this message.";
+function getID() {
+	return end(explode('/',$_SERVER['REQUEST_URI']));
 }
-
