@@ -20,3 +20,8 @@ function internalServerError($msg) {
 	http_response_code(500);
 	die($msg);
 }
+
+function malformedRequest() {
+	http_response_code(400);
+	die("malformed"); //TODO remove string. Only for debugging.
+}

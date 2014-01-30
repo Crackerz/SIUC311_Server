@@ -65,4 +65,28 @@ class SQLServer {
 			internalServerError($this->getError());
 		return true;
 	}
+
+	public function getUpdates($timestamp) {
+		$query = "SELECT * FROM `".$this->TICKET_TABLE."` WHERE `time` > '".$timestamp."'";
+		if(!$result = $this->connection->query($query))
+			internalServerError($this->getError());
+		$update = new Update();
+		while($row = $result->fetch_row()) {
+			$update->addTicket(Ticket::ticketFromSQL($row));
+		}
+		return $update;
+	}
+
+	//Called when a client currently has no tickets stored
+	public function getFreshUpdates() {
+		$query = "SELECT * FROM `".$this->TICKET_TABLE."` WHERE `status` = 0";
+		if(!$result = $this->connection->query($query))
+			internalServerError($this->getError());
+		$update = new Update();
+		while($row = $result->fetch_row()) {
+			$update->addTicket(Ticket::ticketFromSQL($row));
+		}
+		return $update;
+
+	}
 }

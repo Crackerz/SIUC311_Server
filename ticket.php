@@ -35,3 +35,16 @@ class Ticket {
 		return $result;
 	}
 }
+
+//This structure wraps all elements in an update response
+class Update {
+		public $tickets;
+
+		public function __construct() {
+			$this->tickets = array();
+		}
+
+		public function addTicket($ticket) {
+			array_push($this->tickets,$ticket);
+		}
+}

@@ -59,6 +59,30 @@ class TicketAPI {
 	}
 }
 
+//This class contains batch queries that allows a client to sync its state with the server
+class UpdateAPI {
+
+		public static function updateRecent() {
+			$sql = new SQLServer();
+			if(!$sql->connect()) 
+				internalServerError($sql->getError());
+			if(!isset($_GET["timestamp"])) {
+				echo json_encode($sql->getFreshUpdates());	
+			} else {
+				$timestamp = $_GET["timestamp"];
+				//ensure parameter is all digits and proper length for timestamp
+				if(!isTimestamp($timestamp))
+					malformedRequest();
+				$result = $sql->getUpdates($timestamp);
+				echo json_encode($result);
+			}
+		}
+}
+
 function getID() {
 	return end(explode('/',$_SERVER['REQUEST_URI']));
+}
+
+function isTimestamp($str) {
+	return strlen($str)==14&&ctype_digit($str);
 }
