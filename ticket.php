@@ -30,7 +30,7 @@ class Ticket {
 		$result->description = $row[3];
 		$result->latitude = $row[4];
 		$result->longitude = $row[5];
-		$result->timestampe = $row[6];
+		$result->timestamp = $row[6];
 		$result->status = $row[7];
 		return $result;
 	}
