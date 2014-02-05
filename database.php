@@ -1,19 +1,13 @@
 <?php
 include_once './ticket.php';
 include_once './httpResponse.php';
+require('./credentials.php');
 
 //DEFINES THE INTERACTION BETWEEN OUR SERVER AND SQL
 class SQLServer {
-	private $SERVER_ADDRESS = "127.0.0.1";
-	private $SERVER_USER = "root";
-	private $SERVER_PASSWORD = "";
-	private $SERVER_DATABASE = "311";
-	private $TICKET_TABLE = "tickets";
-
 	public $connection;
-
 	public function connect() {
-		$this->connection = mysqli_connect($this->SERVER_ADDRESS,$this->SERVER_USER,$this->SERVER_PASSWORD,$this->SERVER_DATABASE);
+		$this->connection = mysqli_connect($GLOBALS["SERVER_ADDRESS"],$GLOBALS["SERVER_USER"],$GLOBALS["SERVER_PASSWORD"],$GLOBALS["SERVER_DATABASE"]);
 		if(mysqli_connect_errno($this->connection)) {
 			$connection = null;
 			return false;
@@ -26,12 +20,12 @@ class SQLServer {
 	}
 
 	public function insertTicket(&$ticket) {
-		$query = "INSERT INTO `".$this->TICKET_TABLE."` (`reportType`,`dawgTag`,`description`,`latitude`,`longitude`) VALUES ('".$ticket->reportType."','".$ticket->dawgTag."','".$ticket->description."',".$ticket->latitude.",".$ticket->longitude.")";
+		$query = "INSERT INTO `".$GLOBALS["TICKET_TABLE"]."` (`reportType`,`dawgTag`,`description`,`latitude`,`longitude`) VALUES ('".$ticket->reportType."','".$ticket->dawgTag."','".$ticket->description."',".$ticket->latitude.",".$ticket->longitude.")";
 		return $this->connection->query($query);
 	}
 
 	public function getTicket($id) {
-		$query = "SELECT * FROM `".$this->TICKET_TABLE."` WHERE `id` = ".$id." AND `status` != 2";
+		$query = "SELECT * FROM `".$GLOBALS["TICKET_TABLE"]."` WHERE `id` = ".$id." AND `status` != 2";
 		if(!($result = $this->connection->query($query))) {
 			internalServerError($this->getError()); //httpResponse.php
 		} 
@@ -42,14 +36,14 @@ class SQLServer {
 	}
 
 	public function deleteTicket($id) {
-		$query =  "UPDATE `".$this->TICKET_TABLE."` SET `status` = 2 WHERE `id` = ".$id;
+		$query =  "UPDATE `".$GLOBALS["TICKET_TABLE"]."` SET `status` = 2 WHERE `id` = ".$id;
 		return $this->connection->query($query);
 	}
 
 	public function updateTicket($id,&$ticket) {
 		$array = get_object_vars($ticket);
 		$properties = array_keys($array);
-		$query = "UPDATE `".$this->TICKET_TABLE."` SET";
+		$query = "UPDATE `".$GLOBALS["TICKET_TABLE"]."` SET";
 		foreach($properties as $property) {
 			if(isset($array[$property])&&$property!="timestamp"&&$property!="id") {
 				$query = $query." `".$property."` = ";
@@ -67,7 +61,7 @@ class SQLServer {
 	}
 
 	public function getUpdates($timestamp) {
-		$query = "SELECT * FROM `".$this->TICKET_TABLE."` WHERE `time` > '".$timestamp."'";
+		$query = "SELECT * FROM `".$GLOBALS["TICKET_TABLE"]."` WHERE `time` > '".$timestamp."'";
 		if(!$result = $this->connection->query($query))
 			internalServerError($this->getError());
 		$update = new Update();
@@ -79,7 +73,7 @@ class SQLServer {
 
 	//Called when a client currently has no tickets stored
 	public function getFreshUpdates() {
-		$query = "SELECT * FROM `".$this->TICKET_TABLE."` WHERE `status` = 0";
+		$query = "SELECT * FROM `".$GLOBALS["TICKET_TABLE"]."` WHERE `status` = 0";
 		if(!$result = $this->connection->query($query))
 			internalServerError($this->getError());
 		$update = new Update();

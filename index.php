@@ -27,7 +27,7 @@ class TicketAPI {
 				internalServerError($sql->getError());
 		$success = $sql->insertTicket($ticket);
 		if($success)
-			echo '{id:' . $sql->connection->insert_id . '}';
+			echo '{"id":' . $sql->connection->insert_id . '}';
 		else {
 			internalServerError($sql->getError());
 		}
