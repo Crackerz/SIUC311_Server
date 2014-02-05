@@ -61,7 +61,6 @@ class TicketAPI {
 
 //This class contains batch queries that allows a client to sync its state with the server
 class UpdateAPI {
-
 		public static function updateRecent() {
 			$sql = new SQLServer();
 			if(!$sql->connect()) 

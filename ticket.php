@@ -24,14 +24,14 @@ class Ticket {
 
 	public static function ticketFromSQL($row) {
 		$result = new Ticket();
-		$result->id = $row[0];
+		$result->id = intval($row[0]);
 		$result->dawgTag = $row[1];
 		$result->reportType = $row[2];
 		$result->description = $row[3];
 		$result->latitude = $row[4];
 		$result->longitude = $row[5];
 		$result->timestamp = $row[6];
-		$result->status = $row[7];
+		$result->status = intval($row[7]);
 		return $result;
 	}
 }
